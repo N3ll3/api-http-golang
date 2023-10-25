@@ -33,7 +33,10 @@ func PostArtistHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
 		return
 	}
-	database.AddArtist(payload)
+	result, err := database.AddArtist(payload)
+	if (result == false) {
+		w.WriteHeader(err.Code)
+	}
 
 }
 

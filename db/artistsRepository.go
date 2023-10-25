@@ -1,8 +1,10 @@
 package database
 
 import (
+	apiError "api-http/Error"
 	"api-http/domain"
 	"log"
+	"regexp"
 )
 
 
@@ -68,7 +70,7 @@ func GetArtists() []domain.Artist {
 	return artistList
 }
 
-func AddArtist(payload domain.Artist) {
+func AddArtist(payload domain.Artist) (bool, apiError.ApiError) {
  log.Println("AddArtist")
 	db := Connection()
 	if db == nil {
@@ -76,11 +78,28 @@ func AddArtist(payload domain.Artist) {
 	}	
 	//verifier s'il existe ?
 	//verifier format de id
+	pattern := "^[0-9a-zA-Z]{22}$"
+	regex, errRegex := regexp.Compile(pattern)
+    if errRegex != nil {
+        log.Fatal(errRegex)
+    }
+    isMatch := regex.MatchString(payload.Id)
+    if !isMatch {
+        log.Fatal("Id non valide")
+				return false, apiError.ApiError{
+					Code :400,
+					Message : "Mauvais format",
+				}
+    }
 	req :=`INSERT INTO spotify_artist (id , name) 
 					VALUES ($1, $2)`
 	_, err := db.Exec(req, payload.Id, payload.Name)
-
 	if err != nil {
-		log.Fatal(err)
+		return false, apiError.ApiError{
+					Code :422,
+					Message : "Conflit",
+				}
 	}
+
+	return true, apiError.ApiError{}
 }
