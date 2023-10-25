@@ -1,25 +1,11 @@
 package main
 
 import (
-	db "api-http/DB"
+	database "api-http/db"
 	"encoding/json"
 	"log"
 	"net/http"
 )
-
-func getArtistsHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
-        w.WriteHeader(http.StatusMethodNotAllowed)
-        return
-  }
-	result := db.GetArtists();
-	jsonStr, err := json.Marshal(result)
-	if err != nil {
-		 w.WriteHeader(http.StatusInternalServerError)
-     return
-	}
-  w.Write([]byte(jsonStr))
-}
 
 func apiKeyMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -29,7 +15,22 @@ func apiKeyMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+func getArtistsHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+        w.WriteHeader(http.StatusMethodNotAllowed)
+        return
+  }
+	result := database.GetArtists();
+	jsonStr, err := json.Marshal(result)
+	if err != nil {
+		 w.WriteHeader(http.StatusInternalServerError)
+     return
+	}
+  w.Write([]byte(jsonStr))
+}
+
 func pingHandler(w http.ResponseWriter, r *http.Request) {
+	database.Connection()
 	 w.Write([]byte("PONG"))
 }
 
