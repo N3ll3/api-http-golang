@@ -27,6 +27,10 @@ func PostArtistHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
 		return
 	}
+	if !payload.IsValid() {
+		http.Error(w, "Id non valid", http.StatusBadRequest)
+		return
+	}
 	result, err := database.AddArtist(payload)
 	if (result == false) {
 		w.WriteHeader(err.Code)
@@ -43,6 +47,10 @@ func PostArtistTrackHandler(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&payload); err != nil {
 		http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
+		return
+	}
+	if !payload.IsValid() {
+		http.Error(w, "Id non valid", http.StatusBadRequest)
 		return
 	}
 	result, err := database.AddArtistTrack(payload, artistId)

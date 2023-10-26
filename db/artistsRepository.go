@@ -4,7 +4,6 @@ import (
 	apiError "api-http/Error"
 	"api-http/domain"
 	"log"
-	"regexp"
 )
 
 
@@ -77,18 +76,6 @@ func AddArtist(payload domain.Artist) (bool, apiError.ApiError) {
     log.Fatal("Database connection is nil")
 	}	
 
-	pattern := `^[0-9a-zA-Z]{22}$`
-	regex, errRegex := regexp.Compile(pattern)
-    if errRegex != nil {
-        log.Fatal(errRegex)
-    }
-    isMatch := regex.MatchString(payload.Id)
-    if isMatch == false {
-				return false, apiError.ApiError{
-					Code :400,
-					Message :"Id non valide",
-				}
-    }
 	req :=`INSERT INTO spotify_artist (id , name) 
 					VALUES ($1, $2)`
 	_, err := db.Exec(req, payload.Id, payload.Name)
@@ -109,39 +96,22 @@ func AddArtistTrack(payload domain.Track, artistId string) (bool, apiError.ApiEr
  log.Println("AddArtistTrack")
 	db := Connection()
 	if db == nil {
-    log.Fatal("Database connection is nil")
+    log.Println("Database connection is nil")
 	}	
-
-	pattern := `^[0-9a-zA-Z]{22}$`
-	regex, errRegex := regexp.Compile(pattern)
-    if errRegex != nil {
-        log.Fatal(errRegex)
-    }
-    isMatch := regex.MatchString(payload.Id)
-    if isMatch == false {
-				return false, apiError.ApiError{
-					Code :400,
-					Message :"Id non valide",
-				}
-    }
-	req :=`INSERT INTO spotify_track (id , artist_id ,name ) 
-				 VALUES (:id, :artistId,:name)`
-
-	prep, err := db.Prepare(req)
-	if err != nil {
-			log.Fatal(err)
-	}
-	defer prep.Close()
-
-	values := map[string]interface{}{
-			"id": payload.Id,
-			"artistId": artistId,
-			"name": payload.Name,
-	}
-	_, err = prep.Exec(values)
 	
+	// Insertion d'un nouveau track si artist_id existe dans la table spotify_artist. 
+	// Si artist_id n'existe pas, il n'y a aucune insertion.
+	req := `INSERT INTO spotify_track (id, artist_id, name)
+					SELECT $1, sa.id, $2
+					FROM spotify_artist sa
+					WHERE sa.id = $3;`
+
+	_, err := db.Exec(req, payload.Id, payload.Name, artistId)
+
 	defer db.Close()
+
 	if err != nil {
+		log.Printf("%v", err)
 		return false, apiError.ApiError{
 					Code :422,
 					Message : "Conflit",

@@ -24,7 +24,7 @@ func main() {
 
 	router.HandleFunc("/artists/", apiKeyMiddleware(handler.GetArtistsHandler)).Methods("GET")
 	router.HandleFunc("/artist", apiKeyMiddleware(handler.PostArtistHandler)).Methods("POST")
-	router.HandleFunc("/artist/{id:^[0-9a-zA-Z]{22}$}/track", apiKeyMiddleware(handler.PostArtistTrackHandler)).Methods("POST")
+	router.HandleFunc("/artist/{id}/track", apiKeyMiddleware(handler.PostArtistTrackHandler)).Methods("POST")
 	
 	http.Handle("/", router)
 	log.Fatal(http.ListenAndServe(":8000", nil))
