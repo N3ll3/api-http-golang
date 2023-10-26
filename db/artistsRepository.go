@@ -3,6 +3,7 @@ package database
 import (
 	Errors "api-http/Error"
 	"api-http/domain"
+	"errors"
 	"log"
 )
 
@@ -32,7 +33,7 @@ func GetArtists() ([]domain.Artist, error) {
 
 	if err != nil {
 		log.Printf("%v", err)
-		return nil, Errors.NewApiError(err, 400)
+		return nil, Errors.NewApiError(errors.New("Failed to fetch artists from the database"), 500)
 	}
 	defer rows.Close()
 
@@ -46,7 +47,7 @@ func GetArtists() ([]domain.Artist, error) {
 
 		if err != nil {
 			log.Printf("%v", err)
-			return nil, Errors.NewApiError(err, 400)
+			return nil, Errors.NewApiError(errors.New("Failed to fetch artists from the database"), 500)
 		}
 
 		artist, exists := artists[artistID]
@@ -87,7 +88,7 @@ func AddArtist(payload domain.Artist) error {
 
 	if err != nil {
 		log.Printf("%v", err)
-		return Errors.NewApiError(err, 422)
+		return Errors.NewApiError(errors.New("Failed to insert artist in the database"), 422)
 	}
 
 	return nil
@@ -110,7 +111,7 @@ func AddArtistTrack(payload domain.Track, artistId string) error {
 
 	if err != nil {
 		log.Printf("%v", err)
-		return Errors.NewApiError(err, 500)
+		return Errors.NewApiError(errors.New("Failed to insert track for the artist in the database"), 422)
 	}	
 	return nil
 }

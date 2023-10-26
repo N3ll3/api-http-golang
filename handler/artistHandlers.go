@@ -1,10 +1,10 @@
 package handler
 
 import (
+	Errors "api-http/Error"
 	database "api-http/db"
 	"api-http/domain"
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -12,11 +12,15 @@ import (
 
 func GetArtistsHandler(w http.ResponseWriter, r *http.Request) {
 	result, err := database.GetArtists()
-	log.Printf("%v", err)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+			if apiErr, ok := err.(*Errors.ApiError); ok {
+					w.WriteHeader(apiErr.ResponseCode())
+			} else {
+					// Handle the case where the error is not an ApiError
+					w.WriteHeader(http.StatusInternalServerError) // Set a default status code
+			}
+			return
+    }
 	jsonStr, err := json.Marshal(result)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -38,9 +42,15 @@ func PostArtistHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	err := database.AddArtist(payload)
-	if (err != nil) {
-		w.WriteHeader(http.StatusBadRequest)
-	}
+		if err != nil {
+			if apiErr, ok := err.(*Errors.ApiError); ok {
+					w.WriteHeader(apiErr.ResponseCode())
+			} else {
+					// Handle the case where the error is not an ApiError
+					w.WriteHeader(http.StatusInternalServerError) // Set a default status code
+			}
+			return
+    }
 
 }
 
@@ -60,8 +70,14 @@ func PostArtistTrackHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	err := database.AddArtistTrack(payload, artistId)
-	if (err != nil) {
-		w.WriteHeader(http.StatusBadRequest)
+	if err != nil {
+			if apiErr, ok := err.(*Errors.ApiError); ok {
+					w.WriteHeader(apiErr.ResponseCode())
+			} else {
+					// Handle the case where the error is not an ApiError
+					w.WriteHeader(http.StatusInternalServerError) // Set a default status code
+			}
+			return
 	}
 
 }
