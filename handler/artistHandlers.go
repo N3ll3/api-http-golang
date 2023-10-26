@@ -5,13 +5,11 @@ import (
 	"api-http/domain"
 	"encoding/json"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func GetArtistsHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		return
-	}
 	result := database.GetArtists()
 	jsonStr, err := json.Marshal(result)
 	if err != nil {
@@ -22,10 +20,6 @@ func GetArtistsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func PostArtistHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		return
-	}
 	var payload domain.Artist
 
 	decoder := json.NewDecoder(r.Body)
@@ -38,6 +32,23 @@ func PostArtistHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(err.Code)
 	}
 
+}
+
+func PostArtistTrackHandler(w http.ResponseWriter, r *http.Request) {
+	var payload domain.Track
+
+	urlVars := mux.Vars(r)
+	artistId := urlVars["id"]
+
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&payload); err != nil {
+		http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
+		return
+	}
+	result, err := database.AddArtistTrack(payload, artistId)
+	if (result == false) {
+		w.WriteHeader(err.Code)
+	}
 }
 
 func PingHandler(w http.ResponseWriter, r *http.Request) {

@@ -76,24 +76,71 @@ func AddArtist(payload domain.Artist) (bool, apiError.ApiError) {
 	if db == nil {
     log.Fatal("Database connection is nil")
 	}	
-	//verifier s'il existe ?
-	//verifier format de id
-	pattern := "^[0-9a-zA-Z]{22}$"
+
+	pattern := `^[0-9a-zA-Z]{22}$`
 	regex, errRegex := regexp.Compile(pattern)
     if errRegex != nil {
         log.Fatal(errRegex)
     }
     isMatch := regex.MatchString(payload.Id)
-    if !isMatch {
-        log.Fatal("Id non valide")
+    if isMatch == false {
 				return false, apiError.ApiError{
 					Code :400,
-					Message : "Mauvais format",
+					Message :"Id non valide",
 				}
     }
 	req :=`INSERT INTO spotify_artist (id , name) 
 					VALUES ($1, $2)`
 	_, err := db.Exec(req, payload.Id, payload.Name)
+
+	defer db.Close()
+
+	if err != nil {
+		return false, apiError.ApiError{
+					Code :422,
+					Message : "Conflit",
+				}
+	}
+
+	return true, apiError.ApiError{}
+}
+
+func AddArtistTrack(payload domain.Track, artistId string) (bool, apiError.ApiError) {
+ log.Println("AddArtistTrack")
+	db := Connection()
+	if db == nil {
+    log.Fatal("Database connection is nil")
+	}	
+
+	pattern := `^[0-9a-zA-Z]{22}$`
+	regex, errRegex := regexp.Compile(pattern)
+    if errRegex != nil {
+        log.Fatal(errRegex)
+    }
+    isMatch := regex.MatchString(payload.Id)
+    if isMatch == false {
+				return false, apiError.ApiError{
+					Code :400,
+					Message :"Id non valide",
+				}
+    }
+	req :=`INSERT INTO spotify_track (id , artist_id ,name ) 
+				 VALUES (:id, :artistId,:name)`
+
+	prep, err := db.Prepare(req)
+	if err != nil {
+			log.Fatal(err)
+	}
+	defer prep.Close()
+
+	values := map[string]interface{}{
+			"id": payload.Id,
+			"artistId": artistId,
+			"name": payload.Name,
+	}
+	_, err = prep.Exec(values)
+	
+	defer db.Close()
 	if err != nil {
 		return false, apiError.ApiError{
 					Code :422,

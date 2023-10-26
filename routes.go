@@ -4,24 +4,28 @@ import (
 	"api-http/handler"
 	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
-func apiKeyMiddleware(next http.Handler) http.Handler {
+func apiKeyMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		apiKey := r.Header.Get("Api-Key")
 		log.Println(apiKey)
-		next.ServeHTTP(w, r)
+		next(w, r)
 	})
 }
 
 
 func main() {
-		http.HandleFunc("/ping", handler.PingHandler)
+	router := mux.NewRouter()
 
-		getArtistsHandler := http.HandlerFunc(handler.GetArtistsHandler)
-		http.Handle("/artists/", apiKeyMiddleware(getArtistsHandler))
+	router.HandleFunc("/ping", handler.PingHandler).Methods("GET")
 
-		postArtistHandler := http.HandlerFunc(handler.PostArtistHandler)
-		http.Handle("/artist", apiKeyMiddleware(postArtistHandler))
-    log.Fatal(http.ListenAndServe(":8000", nil))
+	router.HandleFunc("/artists/", apiKeyMiddleware(handler.GetArtistsHandler)).Methods("GET")
+	router.HandleFunc("/artist", apiKeyMiddleware(handler.PostArtistHandler)).Methods("POST")
+	router.HandleFunc("/artist/{id:^[0-9a-zA-Z]{22}$}/track", apiKeyMiddleware(handler.PostArtistTrackHandler)).Methods("POST")
+	
+	http.Handle("/", router)
+	log.Fatal(http.ListenAndServe(":8000", nil))
 }
