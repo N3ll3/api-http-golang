@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
+
 func apiKeyMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		apiKey := r.Header.Get("Api-Key")
@@ -15,7 +16,6 @@ func apiKeyMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		next(w, r)
 	})
 }
-
 
 func main() {
 	router := mux.NewRouter()
