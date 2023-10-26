@@ -1,7 +1,7 @@
 package handler
 
 import (
-	Errors "api-http/Error"
+	Errors "api-http/api/error"
 	database "api-http/db"
 	"api-http/domain"
 	"encoding/json"

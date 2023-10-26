@@ -14,8 +14,8 @@ var db *sql.DB
 
 func Connection() *sql.DB {
 	log.Println("Preparation de la connexion DB")
-	godotenv.Load(".env")
- var (
+  godotenv.Load(".env")
+  var (
   host     = os.Getenv("DBHOST")
   port     = os.Getenv("DBPORT")
   user     = os.Getenv("DBUSER")
