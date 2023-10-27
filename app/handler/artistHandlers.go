@@ -59,7 +59,7 @@ func PostArtistHandler(w http.ResponseWriter, r *http.Request) {
 
 func PostArtistByURLHandler(w http.ResponseWriter, r *http.Request) {
 	type Payload struct {
-		Spotify_url string `json:"spotify_url"`
+		Spotify_url string
 	}
 	var payload Payload
 	decoder := json.NewDecoder(r.Body)
@@ -75,16 +75,24 @@ func PostArtistByURLHandler(w http.ResponseWriter, r *http.Request) {
 	artistId := segments[len(segments)-1]
 
 	//2. faire un fetch du nom de l'artist sur l'API spotify
-	artistName, err := api.GetNameArtistFromSpotify(payload.Spotify_url) 
-
+	artistName, err := api.GetNameArtistFromSpotify(artistId) 
+	if err != nil {
+		if apiErr, ok := err.(*Errors.ApiError); ok {
+				w.WriteHeader(apiErr.ResponseCode())
+		} else {
+				w.WriteHeader(http.StatusInternalServerError) 
+		}
+		return
+	}
 	//3 . Ajouter l'artist
 	artist := domain.Artist{
 		Id: artistId,
 		Name: artistName,
 	}
+
 	errAdd := database.AddArtist(artist)
 	if errAdd != nil {
-		if apiErr, ok := err.(*Errors.ApiError); ok {
+		if apiErr, ok := errAdd.(*Errors.ApiError); ok {
 				w.WriteHeader(apiErr.ResponseCode())
 		} else {
 				w.WriteHeader(http.StatusInternalServerError) 

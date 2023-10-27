@@ -87,7 +87,7 @@ func AddArtist(payload domain.Artist) error {
 	defer db.Close()
 
 	if err != nil {
-		log.Printf("%v", err)
+		log.Printf("%v : %v", err, payload)
 		return Errors.NewApiError(errors.New("Failed to insert artist in the database"), 422)
 	}
 
@@ -110,7 +110,7 @@ func AddArtistTrack(payload domain.Track, artistId string) error {
 	defer db.Close()
 
 	if err != nil {
-		log.Printf("%v", err)
+		log.Printf("%v : %v", err, payload)
 		return Errors.NewApiError(errors.New("Failed to insert track for the artist in the database"), 422)
 	}	
 	return nil

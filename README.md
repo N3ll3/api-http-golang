@@ -24,6 +24,10 @@ Tu as comme droit `SELECT`,`INSERT`,`UPDATE`,`DELETE` sur ces deux tables.
 
 # Specs API
 
+## Installation et configuration
+
+
+
 ## Routes
 
 L'api devra implementer ces 3 routes:

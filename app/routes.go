@@ -1,4 +1,4 @@
-package main
+package app
 
 import (
 	"api-http/app/handler"
@@ -9,7 +9,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func main() {
+func Router() {
 	router := mux.NewRouter()
 
 	router.HandleFunc("/ping", handler.PingHandler).Methods("GET")
