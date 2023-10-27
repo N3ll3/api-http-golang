@@ -33,7 +33,7 @@ func GetNameArtistFromSpotify(artistId string) (string, error) {
 	client := spotify.Authenticator{}.NewClient(accessToken)
 	// Convertit l'ID de l'artiste en un format Spotify.
 	spotifyArtistID := spotify.ID(artistId)
-// Récupère les informations sur l'artiste depuis l'API Spotify. 
+ // Récupère les informations sur l'artiste depuis l'API Spotify. 
 	spotifyArtist, err :=  client.GetArtist(spotifyArtistID)
 
 	if err != nil {
