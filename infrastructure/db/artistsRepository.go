@@ -7,13 +7,12 @@ import (
 	"log"
 )
 
-
-
-
+// GetArtists récupère la liste des artistes depuis la base de données.
 func GetArtists() ([]domain.Artist, error) {
 	log.Println("GetArtists")
 	db := Connection()
-
+	 
+ // Requête SQL pour obtenir les artistes et leurs pistes associées.
 	rows, err := db.Query(
 		`WITH ArtistTracks AS (
     SELECT sa.name AS artist,
@@ -60,7 +59,7 @@ func GetArtists() ([]domain.Artist, error) {
 			artists[artistID] = artist
 		}
 
-		 // Vérifier si trackID est nul avant de créer la structure Track
+		 // Vérifier si trackID est nil avant de créer la structure Track
     if trackID != nil {
         track := domain.Track{
             Id:   *trackID,
@@ -77,6 +76,7 @@ func GetArtists() ([]domain.Artist, error) {
 	return artistList, nil
 }
 
+// AddArtist ajoute un nouvel artiste à la base de données.
 func AddArtist(payload domain.Artist) error {
  log.Println("AddArtist")
 	db := Connection()
@@ -94,6 +94,7 @@ func AddArtist(payload domain.Artist) error {
 	return nil
 }
 
+// AddArtistTrack ajoute une piste au catalogue d'un artiste.
 func AddArtistTrack(payload domain.Track, artistId string) error {
  log.Println("AddArtistTrack")
 	db := Connection()

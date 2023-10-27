@@ -1,8 +1,8 @@
 package Errors
 
 type ApiError struct {
-	Code  int
-	Cause error
+	Code  int  // Code d'erreur HTTP
+	Cause error // Cause de l'erreur
 }
 
 func (err *ApiError) ResponseCode() int {
