@@ -1,11 +1,15 @@
 package handler
 
 import (
-	Errors "api-http/api/error"
-	database "api-http/db"
+	Errors "api-http/app/error"
 	"api-http/domain"
+	"api-http/infrastructure/api"
+	database "api-http/infrastructure/db"
 	"encoding/json"
 	"net/http"
+	"net/url"
+	"path"
+	"strings"
 
 	"github.com/gorilla/mux"
 )
@@ -16,8 +20,7 @@ func GetArtistsHandler(w http.ResponseWriter, r *http.Request) {
 			if apiErr, ok := err.(*Errors.ApiError); ok {
 					w.WriteHeader(apiErr.ResponseCode())
 			} else {
-					// Handle the case where the error is not an ApiError
-					w.WriteHeader(http.StatusInternalServerError) // Set a default status code
+					w.WriteHeader(http.StatusInternalServerError)
 			}
 			return
     }
@@ -46,11 +49,48 @@ func PostArtistHandler(w http.ResponseWriter, r *http.Request) {
 			if apiErr, ok := err.(*Errors.ApiError); ok {
 					w.WriteHeader(apiErr.ResponseCode())
 			} else {
-					// Handle the case where the error is not an ApiError
-					w.WriteHeader(http.StatusInternalServerError) // Set a default status code
+					w.WriteHeader(http.StatusInternalServerError) 
 			}
 			return
     }
+
+}
+
+
+func PostArtistByURLHandler(w http.ResponseWriter, r *http.Request) {
+	type Payload struct {
+		Spotify_url string `json:"spotify_url"`
+	}
+	var payload Payload
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&payload); err != nil {
+		http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
+		return
+	}
+
+	//1 .parse de l'url_spotify pour recuperer l'id de l'artiste
+	parsedURL, err := url.Parse(payload.Spotify_url)
+	pathParts := path.Clean(parsedURL.Path)
+	segments := strings.Split(pathParts, "/")
+	artistId := segments[len(segments)-1]
+
+	//2. faire un fetch du nom de l'artist sur l'API spotify
+	artistName, err := api.GetNameArtistFromSpotify(payload.Spotify_url) 
+
+	//3 . Ajouter l'artist
+	artist := domain.Artist{
+		Id: artistId,
+		Name: artistName,
+	}
+	errAdd := database.AddArtist(artist)
+	if errAdd != nil {
+		if apiErr, ok := err.(*Errors.ApiError); ok {
+				w.WriteHeader(apiErr.ResponseCode())
+		} else {
+				w.WriteHeader(http.StatusInternalServerError) 
+		}
+		return
+	}
 
 }
 

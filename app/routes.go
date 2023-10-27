@@ -1,8 +1,8 @@
 package main
 
 import (
-	"api-http/api/handler"
-	"api-http/api/middleware"
+	"api-http/app/handler"
+	"api-http/app/middleware"
 	"log"
 	"net/http"
 
@@ -16,6 +16,7 @@ func main() {
 
 	router.HandleFunc("/artists/", middleware.ApiKeyMiddleware(handler.GetArtistsHandler)).Methods("GET")
 	router.HandleFunc("/artist", middleware.ApiKeyMiddleware(handler.PostArtistHandler)).Methods("POST")
+	router.HandleFunc("/artist/url", middleware.ApiKeyMiddleware(handler.PostArtistByURLHandler)).Methods("POST")
 	router.HandleFunc("/artist/{id}/track", middleware.ApiKeyMiddleware(handler.PostArtistTrackHandler)).Methods("POST")
 	
 	http.Handle("/", router)

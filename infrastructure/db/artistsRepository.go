@@ -1,7 +1,7 @@
 package database
 
 import (
-	Errors "api-http/api/error"
+	Errors "api-http/app/error"
 	"api-http/domain"
 	"errors"
 	"log"
