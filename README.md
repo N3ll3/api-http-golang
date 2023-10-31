@@ -1,5 +1,5 @@
-# Test Technique Backend Golang
-Le but de ce test est de réaliser une simple API HTTP gérant une base de donnéesPostgres contenant des artistes Spotify ainsi que leurs tracks.
+# API Golang
+Le but de cette APIest de réaliser une simple API HTTP gérant une base de données Postgres contenant des artistes Spotify ainsi que leurs tracks.
 
 # BDD
 
