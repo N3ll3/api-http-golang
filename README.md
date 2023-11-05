@@ -25,7 +25,7 @@ Le but de cette APIest de réaliser une simple API HTTP gérant une base de donn
 
 ## Configuration
 
-- L'API est configurée avec des variables d'environnement sur la base de [template.env](config\.env.template)
+- L'API est configurée avec des variables d'environnement sur la base de [template.env](config/.env.template)
 
 - Structure des dossiers
 ``` bash
